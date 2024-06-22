@@ -13,6 +13,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class BusinessController extends Controller
 {
@@ -49,9 +50,23 @@ class BusinessController extends Controller
     {
         $request->validate([
             'company_name' => 'required|string|max:255',
-            'avatar' => 'nullable|image|max:2048',
-            'tax_code' => 'required|string|max:255',
-            'register_code' => 'required|string|max:255',
+            'logo' => 'nullable|image|max:2048',
+            'tax_code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('businesses')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
+            'register_code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('businesses')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
             'registered_address' => 'required|string|max:255',
             'activity_address' => 'nullable|string|max:255',
             'users' => 'array',
@@ -60,7 +75,7 @@ class BusinessController extends Controller
 
         $business = Business::create([
             'company_name' => $request->input('company_name'),
-            'avatar' => $request->file('avatar') ? $request->file('avatar')->store('avatars', 'public') : null,
+            'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
             'verified' => null,
         ]);
 
@@ -70,7 +85,7 @@ class BusinessController extends Controller
             'register_code' => $request->input('register_code'),
             'registered_address' => $request->input('registered_address'),
             'activity_address' => $request->input('activity_address'),
-            'avatar' => $request->file('avatar') ? $request->file('avatar')->store('avatars', 'public') : null,
+            'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : null,
         ]);
 
         $userIds = $request->input('users', []);
@@ -119,9 +134,23 @@ class BusinessController extends Controller
     {
         $request->validate([
             'company_name' => 'required|string|max:255',
-            'avatar' => 'nullable|image|max:2048',
-            'tax_code' => 'required|string|max:255',
-            'register_code' => 'required|string|max:255',
+            'logo' => 'nullable|image|max:2048',
+            'tax_code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('businesses')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                })->ignore($id),
+            ],
+            'register_code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('businesses')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                })->ignore($id),
+            ],
             'registered_address' => 'required|string|max:255',
             'activity_address' => 'nullable|string|max:255',
             'users' => 'array',
@@ -131,7 +160,7 @@ class BusinessController extends Controller
         $business = Business::findOrFail($id);
         $business->update([
             'company_name' => $request->input('company_name'),
-            'avatar' => $request->file('avatar') ? $request->file('avatar')->store('avatars', 'public') : $business->avatar,
+            'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : $business->logo,
         ]);
 
         $businessAccount = $business->account;
@@ -140,7 +169,7 @@ class BusinessController extends Controller
             'register_code' => $request->input('register_code'),
             'registered_address' => $request->input('registered_address'),
             'activity_address' => $request->input('activity_address'),
-            'avatar' => $request->file('avatar') ? $request->file('avatar')->store('avatars', 'public') : $businessAccount->avatar,
+            'logo' => $request->file('logo') ? $request->file('logo')->store('logos', 'public') : $businessAccount->logo,
         ]);
 
         $userIds = $request->input('users', []);
@@ -165,10 +194,19 @@ class BusinessController extends Controller
     public function destroy(string $id): RedirectResponse
     {
         $business = Business::findOrFail($id);
+
+        // Delete related records first if necessary
+        $business->account()->delete(); // Delete related BusinessAccount
+
+        // Detach users from the business
+        $business->users()->detach();
+
+        // Now delete the business itself
         $business->delete();
 
         return redirect()->route('businesses.index')->with('status', 'Business deleted successfully');
     }
+
 
     /**
      * Check if the user is an owner of any business.

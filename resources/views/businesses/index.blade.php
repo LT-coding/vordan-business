@@ -27,7 +27,7 @@
                                 <th>Register Code</th>
                                 <th>Registered Address</th>
                                 <th>Activity Address</th>
-                                <th>Avatar</th>
+                                <th>logo</th>
                                 <th>Actions</th>
                             </tr>
                             </thead>
@@ -41,8 +41,8 @@
                                     <td>{{ $business->account->registered_address }}</td>
                                     <td>{{ $business->account->activity_address }}</td>
                                     <td>
-                                        @if ($business->account->avatar)
-                                            <img src="{{ asset('storage/' . $business->account->avatar) }}" alt="Avatar" style="width: 50px;">
+                                        @if ($business->account->logo)
+                                            <img src="{{ asset('storage/' . $business->account->logo) }}" alt="logo" style="width: 50px;">
                                         @endif
                                     </td>
                                     <td>

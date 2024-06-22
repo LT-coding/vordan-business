@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\BusinessController;
 use App\Http\Controllers\UserController;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
@@ -21,6 +22,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/login');
 });
+
+Route::get('register/{referral?}', [RegisterController::class, 'showRegistrationForm'])->name('register');
+
 
 Auth::routes(['verify' => true]);
 
@@ -45,4 +49,8 @@ Route::post('/email/verification-notification', function (Request $request) {
 Route::middleware(['auth'])->group(function () {
     Route::resource('businesses', BusinessController::class);
     Route::resource('users', UserController::class);
+
+    Route::get('/settings', [UserController::class, 'editSettings'])->name('settings.edit');
+    Route::put('/settings', [UserController::class, 'updateSettings'])->name('settings.update');
+
 });

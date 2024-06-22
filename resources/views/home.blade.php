@@ -22,7 +22,7 @@
                                     </a>
                                     <a href="{{ route('users.index') }}" class="list-group-item list-group-item-action">Users</a>
                                     <a href="{{ route('businesses.index') }}" class="list-group-item list-group-item-action">Businesses</a>
-                                    <a href="#" class="list-group-item list-group-item-action">Settings</a>
+                                    <a href="{{ route('settings.edit') }}" class="list-group-item list-group-item-action">Settings</a>
                                 </div>
                             </div>
                             <div class="col-md-9">

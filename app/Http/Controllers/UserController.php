@@ -13,6 +13,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -140,12 +141,64 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('status', 'User updated successfully.');
     }
 
+    /**
+     * Show the form for editing the user's settings.
+     */
+    public function editSettings(): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $user = Auth::user();
+        return view('settings.edit', compact('user'));
+    }
+
+    /**
+     * Update the user's settings.
+     */
+    public function updateSettings(Request $request): RedirectResponse
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'email' => [
+                'required',
+                'email',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'phone' => [
+                'required',
+                Rule::unique('users')->ignore($user->id),
+            ],
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->route('settings.edit')->with('status', 'Settings updated successfully.');
+    }
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $id): RedirectResponse
     {
-        //
+        // Find the user by ID
+        $user = User::findOrFail($id);
+
+        // Detach relationships
+        $user->businesses()->detach(); // Detach from business_user pivot table if needed
+        BusinessEmployee::where('user_id', $user->id)->delete(); // Delete related business employees
+
+        // Delete the user
+        $user->delete();
+
+        // Redirect to a relevant route (e.g., users index) with a success message
+        return redirect()->route('users.index')->with('success', 'User deleted successfully.');
     }
 }

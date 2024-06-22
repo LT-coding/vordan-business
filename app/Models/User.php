@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -15,6 +16,8 @@ use Spatie\Permission\Traits\HasRoles;
  * @method static create(array $array)
  * @method static whereIn(string $string, $employeeUserIds)
  * @method static find(string $id)
+ * @method static findOrFail(string $id)
+ * @method static where(string $string, mixed $referral)
  */
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -47,5 +50,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function businesses(): BelongsToMany
     {
         return $this->belongsToMany(Business::class, 'business_users', 'user_id', 'business_id');
+    }
+
+    public function referrals(): HasMany
+    {
+        return $this->hasMany(UserReferral::class, 'referral_user_id');
+    }
+
+    public function referredBy(): HasMany
+    {
+        return $this->hasMany(UserReferral::class, 'user_id');
     }
 }

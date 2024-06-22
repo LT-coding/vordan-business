@@ -12,6 +12,10 @@
                         <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
                             @csrf
 
+                            @if($referral)
+                                <input type="hidden" name="referral" value="{{ $referral }}">
+                            @endif
+
                             <div class="form-group row">
                                 <label for="email" class="col-md-4 col-form-label text-md-right">{{ __('E-Mail Address') }}</label>
 
@@ -78,12 +82,12 @@
                             </div>
 
                             <div class="form-group row">
-                                <label for="avatar" class="col-md-4 col-form-label text-md-right">{{ __('Avatar') }}</label>
+                                <label for="logo" class="col-md-4 col-form-label text-md-right">{{ __('Logo') }}</label>
 
                                 <div class="col-md-6">
-                                    <input id="avatar" type="file" class="form-control-file @error('avatar') is-invalid @enderror" name="avatar">
+                                    <input id="logo" type="file" class="form-control-file @error('logo') is-invalid @enderror" name="logo">
 
-                                    @error('avatar')
+                                    @error('logo')
                                     <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>
@@ -141,20 +145,6 @@
                                     <input id="activity_address" type="text" class="form-control @error('activity_address') is-invalid @enderror" name="activity_address" value="{{ old('activity_address') }}">
 
                                     @error('activity_address')
-                                    <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="form-group row">
-                                <label for="business_avatar" class="col-md-4 col-form-label text-md-right">{{ __('Business Avatar') }}</label>
-
-                                <div class="col-md-6">
-                                    <input id="business_avatar" type="file" class="form-control-file @error('business_avatar') is-invalid @enderror" name="business_avatar">
-
-                                    @error('business_avatar')
                                     <span class="invalid-feedback" role="alert">
                                             <strong>{{ $message }}</strong>
                                         </span>

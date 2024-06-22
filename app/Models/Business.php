@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Business extends Model
 {
     protected $fillable = [
-        'company_name', 'verified', 'avatar',
+        'company_name', 'verified', 'logo',
     ];
 
     public function users(): BelongsToMany

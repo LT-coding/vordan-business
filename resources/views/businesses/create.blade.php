@@ -17,8 +17,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="avatar">{{ __('Avatar') }}</label>
-                                <input type="file" name="avatar" id="avatar" class="form-control-file">
+                                <label for="logo">{{ __('logo') }}</label>
+                                <input type="file" name="logo" id="logo" class="form-control-file">
                             </div>
 
                             <div class="form-group">

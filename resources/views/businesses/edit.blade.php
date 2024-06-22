@@ -18,10 +18,10 @@
                             </div>
 
                             <div class="form-group">
-                                <label for="avatar">{{ __('Avatar') }}</label>
-                                <input type="file" name="avatar" id="avatar" class="form-control-file">
-                                @if ($business->account->avatar)
-                                    <img src="{{ asset('storage/' . $business->account->avatar) }}" alt="Avatar" style="width: 100px; height: 100px; margin-top: 10px;">
+                                <label for="logo">{{ __('logo') }}</label>
+                                <input type="file" name="logo" id="logo" class="form-control-file">
+                                @if ($business->account->logo)
+                                    <img src="{{ asset('storage/' . $business->account->logo) }}" alt="logo" style="width: 100px; height: 100px; margin-top: 10px;">
                                 @endif
                             </div>
 

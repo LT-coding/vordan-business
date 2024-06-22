@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class BusinessAccount extends Model
 {
     protected $fillable = [
-        'business_id', 'tax_code', 'register_code', 'registered_address', 'activity_address', 'verified', 'avatar',
+        'business_id', 'tax_code', 'register_code', 'registered_address', 'activity_address', 'verified',
     ];
 
     public function business(): BelongsTo

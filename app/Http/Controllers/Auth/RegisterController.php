@@ -7,10 +7,16 @@ use App\Models\Business;
 use App\Models\BusinessAccount;
 use App\Models\BusinessUser;
 use App\Models\User;
+use App\Models\UserReferral;
 use Illuminate\Auth\Events\Registered;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Contracts\View\View;
+use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class RegisterController extends Controller
 {
@@ -57,13 +63,32 @@ class RegisterController extends Controller
             'phone' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'company_name' => ['required', 'string', 'max:255'],
-            'avatar' => ['nullable', 'image'], // Validate as image file
-            'tax_code' => ['required', 'string', 'max:255'],
-            'register_code' => ['required', 'string', 'max:255'],
+            'logo' => ['nullable', 'image'], // Validate as image file
+            'register_code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('business_accounts')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
+            'tax_code' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('business_accounts')->where(function ($query) {
+                    return $query->whereNull('deleted_at');
+                }),
+            ],
             'registered_address' => ['required', 'string', 'max:255'],
             'activity_address' => ['nullable', 'string', 'max:255'],
-            'business_avatar' => ['nullable', 'image'], // Validate as image file
         ]);
+    }
+
+    public function showRegistrationForm(Request $request): Factory|Application|View|\Illuminate\Contracts\Foundation\Application
+    {
+        $referral = $request->get('referral', null);
+        return view('auth.register', compact('referral'));
     }
 
     protected function create(array $data): User
@@ -79,7 +104,7 @@ class RegisterController extends Controller
         $business = Business::create([
             'company_name' => $data['company_name'],
             'verified' => null,
-            'avatar' => $data['avatar'] ? $this->storeAvatar($data['avatar']) : null,
+            'logo' => $data['logo'] ? $this->storelogo($data['logo']) : null,
         ]);
 
         BusinessUser::create([
@@ -93,8 +118,15 @@ class RegisterController extends Controller
             'register_code' => $data['register_code'],
             'registered_address' => $data['registered_address'],
             'activity_address' => $data['activity_address'],
-            'avatar' => $data['business_avatar'] ? $this->storeAvatar($data['business_avatar']) : null,
         ]);
+
+        if (isset($data['referral']) && $rUser = User::where('referral_code', $data['referral'])->first()) {
+            UserReferral::create([
+                'referral_user_id' => $rUser->id,
+                'user_id' => $user->id,
+            ]);
+            $rUser->update(['referral_bonus' => $rUser->referral_bonus + 10]);
+        }
 
         event(new Registered($user));
 
@@ -102,8 +134,8 @@ class RegisterController extends Controller
         return $user;
     }
 
-    protected function storeAvatar($avatar)
+    protected function storelogo($logo)
     {
-        return $avatar->store('avatars', 'public');
+        return $logo->store('logos', 'public');
     }
 }
