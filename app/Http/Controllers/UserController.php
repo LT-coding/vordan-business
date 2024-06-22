@@ -51,6 +51,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|unique:users',
             'phone' => 'required|unique:users',
+            'name' => 'required|string',
             'businesses' => 'required|array',
             'businesses.*' => 'exists:businesses,id',
         ]);
@@ -66,6 +67,7 @@ class UserController extends Controller
         $user = User::create([
             'email' => $request->input('email'),
             'phone' => $request->input('phone'),
+            'name' => $request->input('name'),
             'password' => $password, // Store the password hash in the database
         ]);
 
